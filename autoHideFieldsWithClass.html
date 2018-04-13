@@ -1,0 +1,124 @@
+<html>
+<meta name="viewport" content="width=device-width , initial-scale=1.0">
+<head>
+<title>Fill or miss!</title>
+<style>
+input[type='text'],input[type='number'],input[type='button'],input[type='submit']{
+height:60px;
+width:200px;
+padding-left:10px;
+border-top-left-radius:10px;
+border-bottom-right-radius:10px;
+position:absolute;
+top:-60px;
+left:35%;
+}
+</style>
+</head>
+<body>
+    <form method="POST" action="">
+        <input type="submit" value="Save:" id="save"/>
+        <input type="text" placeholder="Class:" id="class"/>
+        <input type="number" placeholder="Roll:" id="roll"/>
+        <input type="text" placeholder="Name:" id="name"/>
+    </form>
+<script>
+var nme  = document.querySelector("#name");
+var clss = document.querySelector("#class");
+var roll = document.querySelector("#roll");
+var save = document.querySelector("#save");
+var form = document.querySelector("form");
+
+form.setAttribute("action",String(document.baseURI));
+
+//linked list
+function Elem(elem,next){
+    function getInstance(){
+        return elem;
+    }
+    function getNext(){
+        return next;
+    }
+    return {
+        getInstance:getInstance,
+        getNext:getNext
+    };
+}
+
+//linked list initialization
+var sv = new Elem(save,null);
+var cl = new Elem(clss,sv);
+var rl = new Elem(roll,cl);
+var nm = new Elem(nme ,rl);
+
+function Timer(E,delay){
+    
+    function hideElement() {
+        var elem = E.getInstance();
+        elem.readOnly=true;
+        elem.style.backgroundColor="gray";
+        var op=1.0;
+        var tmr1=setInterval(function(){
+            op -= 0.08;
+            if(op <= 0.0){
+                elem.style.top="-60px";
+                makeNextVisible();
+                clearInterval(tmr1);
+            }
+            elem.style.opacity=op;
+        },100);
+    }
+
+    function makeNextVisible(){
+        var nxt = E.getNext();
+        if(nxt === null){
+            return;
+        }
+        nxt.getInstance().style.top="100px";
+        nxt.getInstance().style.opacity=1.0;
+        nxt.getInstance().focus();
+        var t=new Timer(nxt,delay);
+        t.waitForInput();
+    }
+
+    function waitForInput(){
+        var elem = E.getInstance();
+        elem.style.top="100px";
+        elem.style.opacity=1.0;
+        var tmr=setTimeout(function(){
+            hideElement();
+        },delay);
+        var methodForEvtListener=(function(tmr){
+            return function(){
+                clearTimeout(tmr);
+                tmr=setTimeout(function(){
+                    hideElement();
+                },delay);
+            }
+        })(tmr);
+        elem.removeEventListener("keyup",methodForEvtListener);
+        elem.addEventListener("keyup",methodForEvtListener);
+    }
+    return {waitForInput:waitForInput};
+}
+
+var t1=new Timer(nm,5000);
+t1.waitForInput();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
