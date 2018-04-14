@@ -120,29 +120,25 @@ function Timer(E,delay){
         var elem = E.getInstance();
         elem.style.top="100px";
         elem.style.opacity=1.0;
-        var count=0;
-        var tmr=setInterval(function(){
-            count += 10;
-            if(count>delay){
-                hideElement();
-                clearInterval(tmr);
-            }
-            progressBarPercent(1.0-(count/delay));
-        },10);
-        var methodForEvtListener=(function(tmr){
+        var tmr1,tmr2;
+        var methodForEvtListener=(function(tmr1,tmr2){
             return function(){
-                clearInterval(tmr);
+                clearInterval(tmr1);
+                clearTimeout(tmr2);
                 var count=0;
-                tmr=setInterval(function(){
-                    count += 10;
-                    if(count>delay){
-                        hideElement();
-                        clearInterval(tmr);
-                    }
-                    progressBarPercent(1.0-(count/delay));
-                },10);
+                progressBarPercent(1.0);
+                tmr2=setTimeout(function(){
+                    tmr1=setInterval(function(){
+                        count += 10;
+                        if(count>delay){
+                            hideElement();
+                            clearInterval(tmr1);
+                        }
+                        progressBarPercent(1.0-(count/delay));
+                    },10);
+                },delay);
             }
-        })(tmr);
+        })(tmr1,tmr2);
         elem.removeEventListener("keyup",methodForEvtListener);
         elem.addEventListener("keyup",methodForEvtListener);
     }
