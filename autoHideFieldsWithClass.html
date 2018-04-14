@@ -13,10 +13,28 @@ position:absolute;
 top:-60px;
 left:35%;
 }
+#progressBarBoundary{
+position:absolute;
+top:70px;
+left:35%;
+background-color:khaki;
+height:15px;
+width:200px;
+}
+#progressBar{
+position:absolute;
+top:3px;
+left:5px;
+background-color:royalblue;
+height:9px;
+width:190px;
+}
 </style>
 </head>
 <body>
+
     <form method="POST" action="">
+        <div id="progressBarBoundary"><div id="progressBar"></div></div>
         <input type="submit" value="Save:" id="save"/>
         <input type="text" placeholder="Class:" id="class"/>
         <input type="number" placeholder="Roll:" id="roll"/>
@@ -28,8 +46,23 @@ var clss = document.querySelector("#class");
 var roll = document.querySelector("#roll");
 var save = document.querySelector("#save");
 var form = document.querySelector("form");
-
 form.setAttribute("action",String(document.baseURI));
+
+var progressBar         = document.querySelector("#progressBar");
+var progressBarBoundary = document.querySelector("#progressBarBoundary");
+const MAX               = 190;
+function progressBarPercent(fraction){
+    if(fraction<=0.0){
+        progressBar.style.opacity=0.0;
+        progressBarBoundary.style.opacity=0.0;
+    } else {
+        progressBar.style.opacity=1.0;
+        progressBarBoundary.style.opacity=1.0;
+    }
+    progressBar.style.width=String(fraction*MAX)+"px";
+}
+
+progressBarPercent(0.0);
 
 //linked list
 function Elem(elem,next){
@@ -46,23 +79,23 @@ function Elem(elem,next){
 }
 
 //linked list initialization
-var sv = new Elem(save,null);
+var sv = new Elem(save,null); //last element should have null as its next pointe
 var cl = new Elem(clss,sv);
 var rl = new Elem(roll,cl);
 var nm = new Elem(nme ,rl);
 
 function Timer(E,delay){
-    
+
     function hideElement() {
         var elem = E.getInstance();
         elem.readOnly=true;
         elem.style.backgroundColor="gray";
         var op=1.0;
+        makeNextVisible();
         var tmr1=setInterval(function(){
-            op -= 0.08;
+            op -= 0.1;
             if(op <= 0.0){
                 elem.style.top="-60px";
-                makeNextVisible();
                 clearInterval(tmr1);
             }
             elem.style.opacity=op;
@@ -81,19 +114,33 @@ function Timer(E,delay){
         t.waitForInput();
     }
 
+
     function waitForInput(){
+
         var elem = E.getInstance();
         elem.style.top="100px";
         elem.style.opacity=1.0;
-        var tmr=setTimeout(function(){
-            hideElement();
-        },delay);
+        var count=0;
+        var tmr=setInterval(function(){
+            count += 10;
+            if(count>delay){
+                hideElement();
+                clearInterval(tmr);
+            }
+            progressBarPercent(1.0-(count/delay));
+        },10);
         var methodForEvtListener=(function(tmr){
             return function(){
-                clearTimeout(tmr);
-                tmr=setTimeout(function(){
-                    hideElement();
-                },delay);
+                clearInterval(tmr);
+                var count=0;
+                tmr=setInterval(function(){
+                    count += 10;
+                    if(count>delay){
+                        hideElement();
+                        clearInterval(tmr);
+                    }
+                    progressBarPercent(1.0-(count/delay));
+                },10);
             }
         })(tmr);
         elem.removeEventListener("keyup",methodForEvtListener);
@@ -102,23 +149,8 @@ function Timer(E,delay){
     return {waitForInput:waitForInput};
 }
 
-var t1=new Timer(nm,5000);
+var t1=new Timer(nm,6500);
 t1.waitForInput();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
